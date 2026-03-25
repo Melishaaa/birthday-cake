@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple-dark: #3b0764;
+    --purple-mid: #6d28d9;
+    --purple-light: #a78bfa;
+    --purple-pale: #ede9fe;
+    --pink: #f0abfc;
+    --cream: #fdf4ff;
+    --flame-orange: #fb923c;
+    --flame-yellow: #fde68a;
+    --flame-red: #ef4444;
+    --gold: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 60% 0%, #4c1d95 0%, #1e1b4b 40%, #0f0a1a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Stars */
+  .stars {
+    position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.1; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 8px; height: 14px;
+    opacity: 0;
+    animation: confettiFall linear forwards;
+    pointer-events: none;
+    z-index: 100;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* SETUP SCREEN */
+  #setup-screen {
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    animation: fadeIn 0.8s ease;
+  }
+
+  /* CAKE SCREEN */
+  #cake-screen {
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    animation: fadeIn 0.8s ease;
+    justify-content: center;
+    padding-top: 10px;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* TITLE */
+  .birthday-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(2.2rem, 6.5vw, 3.2rem);
+    color: #fff;
+    text-shadow: 0 0 30px var(--purple-light), 0 0 60px var(--pink);
+    letter-spacing: 1px;
+    text-align: center;
+    width: 100%;
+    margin-top: 40px;
+    margin-bottom: 0px;
+  }
+
+  /* MIC status */
+  .mic-hint {
+    font-size: 0.85rem;
+    color: var(--purple-light);
+    opacity: 0.8;
+    margin-top: -10px;
+    text-align: center;
+  }
+
+  /* CANDLE COUNT UI */
+  .candle-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 24px;
+    padding: 28px 40px;
+    backdrop-filter: blur(10px);
+  }
+  .candle-picker label {
+    font-size: 1rem;
+    color: var(--purple-pale);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .candle-count-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .count-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--purple-light);
+    background: rgba(109,40,217,0.3);
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .count-btn:hover { background: var(--purple-mid); transform: scale(1.1); }
+  .count-display {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: white;
+    min-width: 50px;
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+  }
+
+  .share-btn, .generate-btn {
+    padding: 14px 36px;
+    border-radius: 50px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.5px;
+  }
+  .generate-btn {
+    background: linear-gradient(135deg, var(--purple-mid), #9333ea);
+    color: white;
+    box-shadow: 0 4px 20px rgba(109,40,217,0.5);
+  }
+  .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(109,40,217,0.7); }
+
+  .share-btn {
+    background: linear-gradient(135deg, #9333ea, var(--pink));
+    color: white;
+    box-shadow: 0 4px 20px rgba(240,171,252,0.4);
+  }
+  .share-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(240,171,252,0.6); }
+
+  .copy-link-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 14px;
+    padding: 10px 16px;
+    max-width: 420px;
+    width: 90vw;
+  }
+  .copy-link-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--purple-pale);
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .copy-btn {
+    background: var(--purple-mid);
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { background: #7c3aed; }
+
+  .share-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 90vw;
+    max-width: 420px;
+  }
+  .wa-btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: #25d366;
+    color: white;
+    box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .wa-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,211,102,0.6); }
+  .native-share-btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: linear-gradient(135deg, #9333ea, var(--pink));
+    color: white;
+    box-shadow: 0 4px 16px rgba(147,51,234,0.4);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .native-share-btn:hover { transform: translateY(-2px); }
+
+  /* === CAKE === */
+  .cake-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  svg#cake {
+    overflow: visible;
+    width: min(380px, 95vw);
+    height: auto;
+  }
+
+  /* Candles on cake */
+  .candle-group { transition: opacity 0.5s; }
+  .flame { transform-origin: center bottom; }
+  .flame-anim { animation: flicker 1.2s ease-in-out infinite alternate; }
+  @keyframes flicker {
+    0%   { transform: scaleX(1) scaleY(1) rotate(-2deg); opacity: 1; }
+    25%  { transform: scaleX(0.85) scaleY(1.1) rotate(3deg); opacity: 0.9; }
+    50%  { transform: scaleX(1.1) scaleY(0.95) rotate(-1deg); opacity: 1; }
+    75%  { transform: scaleX(0.9) scaleY(1.05) rotate(2deg); opacity: 0.95; }
+    100% { transform: scaleX(1) scaleY(1) rotate(-2deg); opacity: 1; }
+  }
+
+  /* blow animation */
+  @keyframes blowOut {
+    0% { opacity: 1; transform: scaleY(1); }
+    60% { opacity: 0.4; transform: scaleY(1.5) scaleX(0.5); }
+    100% { opacity: 0; transform: scaleY(0) scaleX(0); }
+  }
+  .blowing-out { animation: blowOut 0.4s ease-out forwards !important; }
+
+  /* Smoke */
+  .smoke { opacity: 0; }
+  .smoke-visible { animation: smokeRise 1.5s ease-out forwards; }
+  @keyframes smokeRise {
+    0% { opacity: 0.7; transform: translateY(0) scaleX(1); }
+    100% { opacity: 0; transform: translateY(-20px) scaleX(2); }
+  }
+
+  /* Plate glow */
+  .plate-glow { filter: drop-shadow(0 10px 30px rgba(109,40,217,0.5)); }
+
+  /* Blow hint */
+  .blow-hint {
+    font-size: 0.9rem;
+    color: var(--purple-light);
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+    margin-top: 4px;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+  /* All blown out message */
+  .blown-msg {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.6rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px var(--gold);
+    display: none;
+    text-align: center;
+    animation: fadeIn 0.8s ease;
+  }
+
+  /* Meter */
+  .blow-meter-wrap {
+    width: min(220px, 70vw);
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  .blow-meter-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--purple-light), var(--pink));
+    border-radius: 10px;
+    transition: width 0.1s;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .candle-picker { padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="birthday-title">🎂 Birthday Cake Maker</div>
+  <div class="candle-picker">
+    <label>How many candles?</label>
+    <div class="candle-count-row">
+      <button class="count-btn" onclick="changeCount(-1)">−</button>
+      <div class="count-display" id="count-display">1</div>
+      <button class="count-btn" onclick="changeCount(1)">+</button>
+    </div>
+  </div>
+  <button class="generate-btn" onclick="generateLink()">🎁 Create Shareable Link</button>
+  <div id="link-area" style="display:none; flex-direction:column; align-items:center; gap:14px;">
+    <div class="copy-link-box">
+      <input type="text" id="share-link" readonly />
+      <button class="copy-btn" id="copy-btn" onclick="copyLink()">📋 Copy</button>
+    </div>
+    <div class="share-options">
+      <a id="wa-btn" class="wa-btn" href="#" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+      <button class="native-share-btn" id="native-share-btn" onclick="nativeShare()" style="display:none">
+        📤 Share
+      </button>
+    </div>
+    <p style="color:var(--purple-light); font-size:0.82rem; text-align:center; max-width:320px;">
+      Copy the link above & send it — or use the buttons below to share directly! 💜
+    </p>
+    <button class="share-btn" onclick="previewCake()">👀 Preview Cake</button>
+  </div>
+</div>
+
+<!-- CAKE SCREEN -->
+<div id="cake-screen">
+  <div class="birthday-title">Happy Birthday Darling 💜</div>
+
+  <div class="cake-wrap">
+    <svg id="cake" viewBox="0 0 280 260" xmlns="http://www.w3.org/2000/svg" style="width:min(380px,95vw);height:auto;overflow:visible">
+      <defs>
+        <radialGradient id="plateGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#3b0764" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Tier 1 (bottom) -->
+        <linearGradient id="tier1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#4c1d95"/>
+        </linearGradient>
+        <!-- Tier 1 top -->
+        <linearGradient id="tier1top" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#a78bfa"/>
+          <stop offset="100%" stop-color="#8b5cf6"/>
+        </linearGradient>
+        <!-- Tier 2 (middle) -->
+        <linearGradient id="tier2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8b5cf6"/>
+          <stop offset="50%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#5b21b6"/>
+        </linearGradient>
+        <!-- Tier 2 top -->
+        <linearGradient id="tier2top" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#c4b5fd"/>
+          <stop offset="100%" stop-color="#a78bfa"/>
+        </linearGradient>
+        <!-- Frosting -->
+        <linearGradient id="frostGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ede9fe"/>
+          <stop offset="50%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#ede9fe"/>
+        </linearGradient>
+        <!-- Plate -->
+        <linearGradient id="plateGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#c4b5fd"/>
+          <stop offset="100%" stop-color="#7c3aed"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Plate glow -->
+      <ellipse cx="140" cy="240" rx="100" ry="18" fill="url(#plateGlow)"/>
+
+      <!-- Plate -->
+      <ellipse cx="140" cy="232" rx="90" ry="12" fill="url(#plateGrad)" opacity="0.85"/>
+      <ellipse cx="140" cy="229" rx="86" ry="9" fill="#ddd6fe" opacity="0.5"/>
+
+      <!-- TIER 1 (bottom) body -->
+      <rect x="52" y="185" width="176" height="45" rx="6" fill="url(#tier1)"/>
+      <!-- Tier 1 top ellipse -->
+      <ellipse cx="140" cy="185" rx="88" ry="11" fill="url(#tier1top)"/>
+      <!-- Tier 1 bottom ellipse (shadow) -->
+      <ellipse cx="140" cy="230" rx="88" ry="10" fill="#4c1d95" opacity="0.5"/>
+
+      <!-- Tier 1 frosting drips -->
+      <path d="M60 185 Q68 175 76 185 Q84 175 92 185 Q100 175 108 185 Q116 175 124 185 Q132 175 140 185 Q148 175 156 185 Q164 175 172 185 Q180 175 188 185 Q196 175 204 185 Q212 175 220 185" stroke="url(#frostGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+      <!-- Tier 1 decorations: dots -->
+      <circle cx="80" cy="207" r="4" fill="#c4b5fd" opacity="0.7"/>
+      <circle cx="112" cy="213" r="3" fill="#f0abfc" opacity="0.8"/>
+      <circle cx="140" cy="207" r="4" fill="#c4b5fd" opacity="0.7"/>
+      <circle cx="168" cy="213" r="3" fill="#f0abfc" opacity="0.8"/>
+      <circle cx="200" cy="207" r="4" fill="#c4b5fd" opacity="0.7"/>
+
+      <!-- TIER 2 (top) body -->
+      <rect x="80" y="140" width="120" height="45" rx="6" fill="url(#tier2)"/>
+      <!-- Tier 2 top ellipse -->
+      <ellipse cx="140" cy="140" rx="60" ry="9" fill="url(#tier2top)"/>
+      <!-- Tier 2 bottom ellipse (shadow) -->
+      <ellipse cx="140" cy="185" rx="60" ry="8" fill="#4c1d95" opacity="0.4"/>
+
+      <!-- Tier 2 frosting drips -->
+      <path d="M87 140 Q94 131 101 140 Q108 131 115 140 Q122 131 129 140 Q136 131 143 140 Q150 131 157 140 Q164 131 171 140 Q178 131 185 140 Q192 131 193 140" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+
+      <!-- Tier 2 small hearts -->
+      <text x="105" y="167" font-size="12" fill="#f0abfc" opacity="0.8">♡</text>
+      <text x="130" y="172" font-size="10" fill="#ddd6fe" opacity="0.7">♡</text>
+      <text x="155" y="167" font-size="12" fill="#f0abfc" opacity="0.8">♡</text>
+
+      <!-- i love you on bottom tier -->
+      <text x="140" y="220" font-size="15" fill="#ede9fe" opacity="0.95" text-anchor="middle" font-family="'Dancing Script', cursive" letter-spacing="0.8">i love you ♡</text>
+
+      <!-- Candle area — drawn by JS -->
+      <g id="candles-layer"></g>
+    </svg>
+  </div>
+
+  <div class="blow-meter-wrap" id="meter-wrap" style="display:none">
+    <div class="blow-meter-bar" id="meter-bar"></div>
+  </div>
+  <div class="blow-hint" id="blow-hint">🎤 Allow microphone & blow to put out candles!</div>
+  <div class="blown-msg" id="blown-msg">🌟 Make a wish! 🌟</div>
+</div>
+
+<script>
+// ====== STARS ======
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.5 + 0.5;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+1).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s`;
+  starsEl.appendChild(s);
+}
+
+// ====== CANDLE COUNT ======
+let candleCount = 1;
+function changeCount(d) {
+  candleCount = Math.max(1, Math.min(20, candleCount + d));
+  document.getElementById('count-display').textContent = candleCount;
+  document.getElementById('link-area').style.display = 'none';
+}
+
+// ====== LINK — encode full cake page into a data: URL ======
+let shareURL = '';
+
+function buildCakePage(count) {
+  // Minimal standalone cake page with the candle count baked in
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Happy Birthday 🎂</title><link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet"><style>:root{--purple-mid:#6d28d9;--purple-light:#a78bfa;--purple-pale:#ede9fe;--pink:#f0abfc;--gold:#fbbf24}*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;background:radial-gradient(ellipse at 60% 0%,#4c1d95 0%,#1e1b4b 40%,#0f0a1a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;overflow-x:hidden;position:relative}.stars{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.star{position:absolute;background:white;border-radius:50%;animation:twinkle var(--d) ease-in-out infinite alternate}@keyframes twinkle{from{opacity:.1;transform:scale(.8)}to{opacity:1;transform:scale(1.2)}}.confetti-piece{position:fixed;width:8px;height:14px;opacity:0;animation:confettiFall linear forwards;pointer-events:none;z-index:100;border-radius:2px}@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}#cake-screen{z-index:10;display:flex;flex-direction:column;align-items:center;gap:20px;animation:fadeIn .8s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}.birthday-title{font-family:'Dancing Script',cursive;font-size:clamp(2rem,6vw,3.5rem);color:#fff;text-shadow:0 0 30px var(--purple-light),0 0 60px var(--pink);letter-spacing:1px;text-align:center}.cake-wrap{position:relative;display:flex;flex-direction:column;align-items:center}svg#cake{overflow:visible;width:min(340px,88vw);height:auto}.flame{transform-origin:center bottom}.flame-anim{animation:flicker 1.2s ease-in-out infinite alternate}@keyframes flicker{0%{transform:scaleX(1) scaleY(1) rotate(-2deg);opacity:1}25%{transform:scaleX(.85) scaleY(1.1) rotate(3deg);opacity:.9}50%{transform:scaleX(1.1) scaleY(.95) rotate(-1deg);opacity:1}75%{transform:scaleX(.9) scaleY(1.05) rotate(2deg);opacity:.95}100%{transform:scaleX(1) scaleY(1) rotate(-2deg);opacity:1}}@keyframes blowOut{0%{opacity:1;transform:scaleY(1)}60%{opacity:.4;transform:scaleY(1.5) scaleX(.5)}100%{opacity:0;transform:scaleY(0) scaleX(0)}}.blowing-out{animation:blowOut .4s ease-out forwards!important}.smoke{opacity:0}.smoke-visible{animation:smokeRise 1.5s ease-out forwards}@keyframes smokeRise{0%{opacity:.7;transform:translateY(0) scaleX(1)}100%{opacity:0;transform:translateY(-20px) scaleX(2)}}.blow-hint{font-size:.9rem;color:var(--purple-light);text-align:center;animation:pulse 2s ease-in-out infinite;margin-top:4px}@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}.blown-msg{font-family:'Dancing Script',cursive;font-size:1.6rem;color:var(--gold);text-shadow:0 0 20px var(--gold);display:none;text-align:center;animation:fadeIn .8s ease}.blow-meter-wrap{width:min(220px,70vw);height:10px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin:0 auto}.blow-meter-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--purple-light),var(--pink));border-radius:10px;transition:width .1s}</style></head><body><div class="stars" id="stars"></div><div id="cake-screen"><div class="birthday-title">Happy Birthday Darling 💜</div><div class="cake-wrap"><svg id="cake" viewBox="0 0 280 260" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="plateGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#7c3aed" stop-opacity=".3"/><stop offset="100%" stop-color="#3b0764" stop-opacity="0"/></radialGradient><linearGradient id="tier1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7c3aed"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#4c1d95"/></linearGradient><linearGradient id="tier1top" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient><linearGradient id="tier2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#5b21b6"/></linearGradient><linearGradient id="tier2top" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient><linearGradient id="frostGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ede9fe"/><stop offset="50%" stop-color="#ffffff"/><stop offset="100%" stop-color="#ede9fe"/></linearGradient><linearGradient id="plateGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient><linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#fb923c"/><stop offset="50%" stop-color="#fde68a"/><stop offset="100%" stop-color="#ffffff"/></linearGradient></defs><ellipse cx="140" cy="240" rx="100" ry="18" fill="url(#plateGlow)"/><ellipse cx="140" cy="232" rx="90" ry="12" fill="url(#plateGrad)" opacity=".85"/><ellipse cx="140" cy="229" rx="86" ry="9" fill="#ddd6fe" opacity=".5"/><rect x="52" y="185" width="176" height="45" rx="6" fill="url(#tier1)"/><ellipse cx="140" cy="185" rx="88" ry="11" fill="url(#tier1top)"/><ellipse cx="140" cy="230" rx="88" ry="10" fill="#4c1d95" opacity=".5"/><path d="M60 185 Q68 175 76 185 Q84 175 92 185 Q100 175 108 185 Q116 175 124 185 Q132 175 140 185 Q148 175 156 185 Q164 175 172 185 Q180 175 188 185 Q196 175 204 185 Q212 175 220 185" stroke="url(#frostGrad)" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="80" cy="207" r="4" fill="#c4b5fd" opacity=".7"/><circle cx="112" cy="213" r="3" fill="#f0abfc" opacity=".8"/><circle cx="140" cy="207" r="4" fill="#c4b5fd" opacity=".7"/><circle cx="168" cy="213" r="3" fill="#f0abfc" opacity=".8"/><circle cx="200" cy="207" r="4" fill="#c4b5fd" opacity=".7"/><rect x="80" y="140" width="120" height="45" rx="6" fill="url(#tier2)"/><ellipse cx="140" cy="140" rx="60" ry="9" fill="url(#tier2top)"/><ellipse cx="140" cy="185" rx="60" ry="8" fill="#4c1d95" opacity=".4"/><path d="M87 140 Q94 131 101 140 Q108 131 115 140 Q122 131 129 140 Q136 131 143 140 Q150 131 157 140 Q164 131 171 140 Q178 131 185 140 Q192 131 193 140" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".9"/><text x="105" y="167" font-size="12" fill="#f0abfc" opacity=".8">♡</text><text x="130" y="172" font-size="10" fill="#ddd6fe" opacity=".7">♡</text><text x="155" y="167" font-size="12" fill="#f0abfc" opacity=".8">♡</text><g id="candles-layer"></g></svg></div><div class="blow-meter-wrap" id="meter-wrap" style="display:none"><div class="blow-meter-bar" id="meter-bar"></div></div><div class="blow-hint" id="blow-hint">🎤 Allow microphone & blow to put out candles!</div><div class="blown-msg" id="blown-msg">🌟 Make a wish! 🌟</div></div><script>const starsEl=document.getElementById('stars');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;--d:'+(Math.random()*3+1).toFixed(1)+'s;animation-delay:'+(Math.random()*4).toFixed(1)+'s';starsEl.appendChild(s)}const COLORS=['#f472b6','#fb7185','#fb923c','#facc15','#34d399','#60a5fa','#a78bfa','#f0abfc','#fde68a','#86efac'];let litCandles=[],allBlown=false;function drawCandles(count,lit){const layer=document.getElementById('candles-layer');layer.innerHTML='';if(count===0)return;const topY=140,spacing=Math.min(22,110/count),totalW=spacing*(count-1),startX=140-totalW/2;for(let i=0;i<count;i++){const cx=startX+i*spacing,cy=topY,color=COLORS[i%COLORS.length],isLit=lit[i]!==false,g=document.createElementNS('http://www.w3.org/2000/svg','g');g.id='candle-'+i;const body=document.createElementNS('http://www.w3.org/2000/svg','rect');body.setAttribute('x',cx-4);body.setAttribute('y',cy-22);body.setAttribute('width',8);body.setAttribute('height',22);body.setAttribute('rx',2);body.setAttribute('fill',color);g.appendChild(body);const wick=document.createElementNS('http://www.w3.org/2000/svg','line');wick.setAttribute('x1',cx);wick.setAttribute('y1',cy-22);wick.setAttribute('x2',cx);wick.setAttribute('y2',cy-27);wick.setAttribute('stroke','#1f2937');wick.setAttribute('stroke-width','1.5');wick.setAttribute('stroke-linecap','round');g.appendChild(wick);if(isLit){const glow=document.createElementNS('http://www.w3.org/2000/svg','ellipse');glow.setAttribute('cx',cx);glow.setAttribute('cy',cy-33);glow.setAttribute('rx',7);glow.setAttribute('ry',7);glow.setAttribute('fill','#fde68a');glow.setAttribute('opacity','0.25');glow.id='glow-'+i;g.appendChild(glow);const flame=document.createElementNS('http://www.w3.org/2000/svg','path');flame.setAttribute('d','M'+cx+' '+(cy-27)+' C'+(cx-4)+' '+(cy-33)+' '+(cx-5)+' '+(cy-38)+' '+cx+' '+(cy-43)+' C'+(cx+5)+' '+(cy-38)+' '+(cx+4)+' '+(cy-33)+' '+cx+' '+(cy-27)+'Z');flame.setAttribute('fill','url(#flameGrad)');flame.id='flame-'+i;flame.classList.add('flame','flame-anim');flame.style.animationDelay=(i*.17).toFixed(2)+'s';g.appendChild(flame);const smoke=document.createElementNS('http://www.w3.org/2000/svg','ellipse');smoke.setAttribute('cx',cx);smoke.setAttribute('cy',cy-46);smoke.setAttribute('rx',3);smoke.setAttribute('ry',3);smoke.setAttribute('fill','#9ca3af');smoke.setAttribute('opacity','0');smoke.id='smoke-'+i;g.appendChild(smoke)}layer.appendChild(g)}}function blowOutCandle(idx){if(!litCandles[idx])return;litCandles[idx]=false;const flame=document.getElementById('flame-'+idx),glow=document.getElementById('glow-'+idx),smoke=document.getElementById('smoke-'+idx);if(flame){flame.classList.remove('flame-anim');flame.classList.add('blowing-out');setTimeout(()=>{if(flame)flame.style.display='none'},400)}if(glow)setTimeout(()=>{glow.style.opacity=0},200);if(smoke)smoke.classList.add('smoke-visible');spawnConfetti(1);if(litCandles.every(v=>!v)){allBlown=true;setTimeout(()=>{document.getElementById('blown-msg').style.display='block';document.getElementById('blow-hint').style.display='none';document.getElementById('meter-wrap').style.display='none';spawnConfetti(60)},500)}}async function startMic(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});const audioCtx=new(window.AudioContext||window.webkitAudioContext)();const source=audioCtx.createMediaStreamSource(stream);const analyser=audioCtx.createAnalyser();analyser.fftSize=512;source.connect(analyser);document.getElementById('meter-wrap').style.display='block';document.getElementById('blow-hint').textContent='💨 Blow to extinguish the candles!';const buf=new Uint8Array(analyser.fftSize);let blowFrames=0;function loop(){if(allBlown)return;analyser.getByteTimeDomainData(buf);let sum=0;for(let i=0;i<buf.length;i++){const v=buf[i]/128-1;sum+=v*v}const rms=Math.sqrt(sum/buf.length);document.getElementById('meter-bar').style.width=Math.min(rms/.25,1)*100+'%';if(rms>.04){blowFrames++;if(blowFrames>3){const rem=litCandles.map((v,i)=>v?i:-1).filter(i=>i>=0);if(rem.length>0)blowOutCandle(rem[Math.floor(Math.random()*rem.length)]);blowFrames=0}}else blowFrames=0;requestAnimationFrame(loop)}loop()}catch(e){document.getElementById('blow-hint').textContent='🎤 Mic not available — tap the flames to blow them out!';document.getElementById('candles-layer').addEventListener('click',function(e){const t=e.target;if(t.id&&t.id.startsWith('flame-'))blowOutCandle(parseInt(t.id.split('-')[1]))})}}function spawnConfetti(n){const colors=['#a78bfa','#f0abfc','#fde68a','#34d399','#60a5fa','#fb923c','#fff'];for(let i=0;i<n;i++)setTimeout(()=>{const el=document.createElement('div');el.className='confetti-piece';el.style.left=Math.random()*100+'vw';el.style.top='-20px';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.transform='rotate('+Math.random()*360+'deg)';el.style.animationDuration=(Math.random()*2+2)+'s';el.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),4000)},i*40)}const N=${count};litCandles=new Array(N).fill(true);drawCandles(N,litCandles);startMic();spawnConfetti(20);<\/script></body></html>`;
+}
+
+function generateLink() {
+  const html = buildCakePage(candleCount);
+  shareURL = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+
+  const inp = document.getElementById('share-link');
+  inp.value = shareURL.slice(0, 60) + '… (click Copy to copy full link)';
+
+  // WhatsApp — data URLs are too long for WA preview, so we just share as text
+  const msg = encodeURIComponent('🎂 Blow out my birthday cake candles! 💜\n\nCopy this link and open it in your browser:\n' + shareURL);
+  document.getElementById('wa-btn').href = 'https://wa.me/?text=' + msg;
+
+  if (navigator.share) {
+    document.getElementById('native-share-btn').style.display = 'flex';
+  }
+
+  document.getElementById('link-area').style.display = 'flex';
+}
+
+function copyLink() {
+  const btn = document.getElementById('copy-btn');
+  const success = () => { btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = '📋 Copy', 2500); };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareURL).then(success).catch(() => {
+      fallbackCopy();
+      success();
+    });
+  } else {
+    fallbackCopy();
+    success();
+  }
+}
+
+function fallbackCopy() {
+  const ta = document.createElement('textarea');
+  ta.value = shareURL;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+
+function nativeShare() {
+  // For data URLs, we share as a file blob
+  const html = buildCakePage(candleCount);
+  const blob = new Blob([html], {type: 'text/html'});
+  const file = new File([blob], 'birthday-cake.html', {type: 'text/html'});
+  if (navigator.canShare && navigator.canShare({files:[file]})) {
+    navigator.share({ files:[file], title:'🎂 Blow out my birthday candles!' }).catch(()=>{});
+  } else {
+    navigator.share({ title:'🎂 Happy Birthday!', text:'Open this birthday cake and blow out the candles! 💜\n\n' + shareURL }).catch(()=>{});
+  }
+}
+
+function previewCake() {
+  initCake(candleCount);
+}
+
+// ====== CANDLE DRAWING ======
+const COLORS = ['#f472b6','#fb7185','#fb923c','#facc15','#34d399','#60a5fa','#a78bfa','#f0abfc','#fde68a','#86efac'];
+
+function drawCandles(count, lit) {
+  const layer = document.getElementById('candles-layer');
+  layer.innerHTML = '';
+  if (count === 0) return;
+
+  // Place candles on top of tier2 (centered around x=140, y~140)
+  const topY = 140;
+  const spacing = Math.min(22, 110 / count);
+  const totalW = spacing * (count - 1);
+  const startX = 140 - totalW / 2;
+
+  for (let i = 0; i < count; i++) {
+    const cx = startX + i * spacing;
+    const cy = topY;
+    const color = COLORS[i % COLORS.length];
+    const isLit = lit[i] !== false;
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.id = `candle-${i}`;
+
+    // Candle body
+    const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    body.setAttribute('x', cx - 4); body.setAttribute('y', cy - 22);
+    body.setAttribute('width', 8); body.setAttribute('height', 22);
+    body.setAttribute('rx', 2); body.setAttribute('fill', color);
+    g.appendChild(body);
+
+    // Wick
+    const wick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    wick.setAttribute('x1', cx); wick.setAttribute('y1', cy - 22);
+    wick.setAttribute('x2', cx); wick.setAttribute('y2', cy - 27);
+    wick.setAttribute('stroke', '#1f2937'); wick.setAttribute('stroke-width', '1.5');
+    wick.setAttribute('stroke-linecap', 'round');
+    g.appendChild(wick);
+
+    if (isLit) {
+      // Flame glow
+      const glow = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      glow.setAttribute('cx', cx); glow.setAttribute('cy', cy - 33);
+      glow.setAttribute('rx', 7); glow.setAttribute('ry', 7);
+      glow.setAttribute('fill', '#fde68a'); glow.setAttribute('opacity', '0.25');
+      glow.id = `glow-${i}`;
+      g.appendChild(glow);
+
+      // Flame
+      const flame = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      flame.setAttribute('d', `M${cx} ${cy-27} C${cx-4} ${cy-33} ${cx-5} ${cy-38} ${cx} ${cy-43} C${cx+5} ${cy-38} ${cx+4} ${cy-33} ${cx} ${cy-27}Z`);
+      flame.setAttribute('fill', 'url(#flameGrad)');
+      flame.id = `flame-${i}`;
+      flame.classList.add('flame', 'flame-anim');
+      flame.style.animationDelay = `${(i*0.17).toFixed(2)}s`;
+      g.appendChild(flame);
+
+      // Smoke (hidden)
+      const smoke = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      smoke.setAttribute('cx', cx); smoke.setAttribute('cy', cy - 46);
+      smoke.setAttribute('rx', 3); smoke.setAttribute('ry', 3);
+      smoke.setAttribute('fill', '#9ca3af'); smoke.setAttribute('opacity', '0');
+      smoke.id = `smoke-${i}`;
+      g.appendChild(smoke);
+    }
+
+    layer.appendChild(g);
+  }
+
+  // Ensure flame gradient
+  let defs = document.querySelector('#cake defs');
+  if (!document.getElementById('flameGrad')) {
+    const lg = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    lg.id = 'flameGrad'; lg.setAttribute('x1','0%'); lg.setAttribute('y1','100%'); lg.setAttribute('x2','0%'); lg.setAttribute('y2','0%');
+    const s1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#fb923c');
+    const s2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    s2.setAttribute('offset','50%'); s2.setAttribute('stop-color','#fde68a');
+    const s3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    s3.setAttribute('offset','100%'); s3.setAttribute('stop-color','#ffffff');
+    lg.appendChild(s1); lg.appendChild(s2); lg.appendChild(s3);
+    defs.appendChild(lg);
+  }
+}
+
+// ====== BLOW DETECTION ======
+let audioCtx, analyser, litCandles = [], blowingTimer = null, allBlown = false;
+let totalCandles = 1;
+
+async function startMic() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    document.getElementById('meter-wrap').style.display = 'block';
+    document.getElementById('blow-hint').textContent = '💨 Blow to extinguish the candles!';
+    detectBlow();
+  } catch(e) {
+    document.getElementById('blow-hint').textContent = '🎤 Mic not available — click candles to blow them out!';
+    // Fallback: click candles
+    document.getElementById('candles-layer').addEventListener('click', function(e) {
+      const t = e.target;
+      if (t.id && t.id.startsWith('flame-')) {
+        const idx = parseInt(t.id.split('-')[1]);
+        blowOutCandle(idx);
+      }
+    });
+  }
+}
+
+function detectBlow() {
+  const buf = new Uint8Array(analyser.fftSize);
+  let blowFrames = 0;
+
+  function loop() {
+    if (allBlown) return;
+    analyser.getByteTimeDomainData(buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) { const v = buf[i] / 128 - 1; sum += v * v; }
+    const rms = Math.sqrt(sum / buf.length);
+    const pct = Math.min(rms / 0.25, 1);
+    document.getElementById('meter-bar').style.width = (pct * 100) + '%';
+
+    if (rms > 0.04) {
+      blowFrames++;
+      if (blowFrames > 3) {
+        // blow out a random lit candle
+        const remaining = litCandles.map((v,i) => v ? i : -1).filter(i => i >= 0);
+        if (remaining.length > 0) {
+          const pick = remaining[Math.floor(Math.random() * remaining.length)];
+          blowOutCandle(pick);
+        }
+        blowFrames = 0;
+      }
+    } else {
+      blowFrames = 0;
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function blowOutCandle(idx) {
+  if (!litCandles[idx]) return;
+  litCandles[idx] = false;
+
+  const flame = document.getElementById(`flame-${idx}`);
+  const glow = document.getElementById(`glow-${idx}`);
+  const smoke = document.getElementById(`smoke-${idx}`);
+
+  if (flame) {
+    flame.classList.remove('flame-anim');
+    flame.classList.add('blowing-out');
+    setTimeout(() => { if(flame) flame.style.display='none'; }, 400);
+  }
+  if (glow) { setTimeout(() => { glow.style.opacity=0; }, 200); }
+  if (smoke) { smoke.classList.add('smoke-visible'); }
+
+  spawnConfetti(1);
+
+  // Check all blown
+  if (litCandles.every(v => !v)) {
+    allBlown = true;
+    setTimeout(() => {
+      document.getElementById('blown-msg').style.display = 'block';
+      document.getElementById('blow-hint').style.display = 'none';
+      document.getElementById('meter-wrap').style.display = 'none';
+      spawnConfetti(60);
+    }, 500);
+  }
+}
+
+// ====== CONFETTI ======
+function spawnConfetti(n) {
+  const colors = ['#a78bfa','#f0abfc','#fde68a','#34d399','#60a5fa','#fb923c','#fff'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = (Math.random() * 100) + 'vw';
+      el.style.top = '-20px';
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      el.style.transform = `rotate(${Math.random()*360}deg)`;
+      el.style.animationDuration = (Math.random()*2+2) + 's';
+      el.style.animationDelay = (Math.random()*0.5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 40);
+  }
+}
+
+// ====== INIT ======
+function initCake(count) {
+  totalCandles = count;
+  litCandles = new Array(count).fill(true);
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('cake-screen').style.display = 'flex';
+  drawCandles(count, litCandles);
+  startMic();
+  spawnConfetti(20);
+}
+
+// Check URL params
+const params = new URLSearchParams(window.location.search);
+const cParam = parseInt(params.get('c'));
+if (!isNaN(cParam) && cParam >= 1 && cParam <= 20) {
+  window.addEventListener('DOMContentLoaded', () => initCake(cParam));
+}
+</script>
+</body>
+</html>
